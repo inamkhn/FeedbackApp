@@ -1,4 +1,5 @@
 'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -35,7 +36,7 @@ export default function SignInForm() {
       identifier: data.identifier,
       password: data.password,
     });
-
+    console.log(result);
     if (result?.error) {
       if (result.error === 'CredentialsSignin') {
         toast({
