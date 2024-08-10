@@ -6,21 +6,21 @@ import { connect } from "@/lib/dbConnect";
 export async function POST(request: Request) {
   await connect();
   try {
-    const session = await getServerSession();
-    const user: User = session?.user;
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
     if (!session || !session.user) {
       return Response.json(
         { success: false, message: "Not authenticated" },
         { status: 401 }
-      );
+      )
     }
-    const userId = user._id;
-    const { acceptMessages } = await request.json();
+    const userId = user
+    const { acceptMessages } = await request.json()
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { isAcceptingMessages: acceptMessages },
       { new: true }
-    );
+    )
     if (!updatedUser) {
       // User not found
       return Response.json(
@@ -45,37 +45,33 @@ export async function POST(request: Request) {
     return Response.json(
       { success: false, message: "Error updating message acceptance status" },
       { status: 500 }
-    );
+    )
   }
 }
 
 
 export async function GET(request: Request) {
     // Connect to the database
-    await connect();
-  
+    await connect()
     // Get the user session
     const session = await getServerSession(authOptions);
-    const user = session?.user;
+    const user = session?.user
   
     // Check if the user is authenticated
     if (!session || !user) {
       return Response.json(
         { success: false, message: 'Not authenticated' },
         { status: 401 }
-      );
+      )
     }
-  
     try {
       // Retrieve the user from the database using the ID
-      const foundUser = await UserModel.findById(user._id);
-  
+      const foundUser = await UserModel.findById(user._id)
       if (!foundUser) {
-        // User not found
         return Response.json(
           { success: false, message: 'User not found' },
           { status: 404 }
-        );
+        )
       }
   
       // Return the user's message acceptance status
@@ -85,12 +81,12 @@ export async function GET(request: Request) {
           isAcceptingMessages: foundUser.isAcceptingMessages,
         },
         { status: 200 }
-      );
+      )
     } catch (error) {
       console.error('Error retrieving message acceptance status:', error);
       return Response.json(
         { success: false, message: 'Error retrieving message acceptance status' },
         { status: 500 }
-      );
+      )
     }
   }
