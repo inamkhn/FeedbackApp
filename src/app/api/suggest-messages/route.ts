@@ -1,47 +1,28 @@
-// import { openai } from '@ai-sdk/openai';
-// import { StreamingTextResponse, streamText, StreamData } from 'ai';
-// // Allow streaming responses up to 30 seconds
-// export const maxDuration = 30;
-// export async function POST(req: Request) {
-//   const { messages } = await req.json();
-//   const result = await streamText({
-//     model: openai('gpt-4-turbo'),
-//     messages,
-//   });
-//   const data = new StreamData();
-//   data.append({ test: 'value' });
-//   const stream = result.toAIStream({
-//     onFinal(_) {
-//       data.close();
-//     },
-//   });
-//   return new StreamingTextResponse(stream, {}, data);
-// }
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
     try {
-        const { messages } = await req.json();
-        const prompt = "Write a story about an AI and magic"
-        
-        const result = await model.generateContent(messages);
+        // Add a random element to the prompt to encourage varied responses
+        const randomSeed = Math.random().toString(36).substring(2, 15);
+        const prompt = `Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment. Add a touch of randomness or variety to the questions, perhaps influenced by this seed: ${randomSeed}.`;
+
+        const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
         console.log(text);
         return Response.json(
-          { text, message: "success" },
-          { status: 200 }
+            { text, message: "success" },
+            { status: 200 }
         );
     } catch (error) {
-        console.log(error)
+        console.log(error);
         Response.json(
-            { success:false, message: "error occurred" },
+            { success: false, message: "error occurred" },
             { status: 500 }
-          );
+        );
     }
-
 }
